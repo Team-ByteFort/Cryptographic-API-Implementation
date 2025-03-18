@@ -1,0 +1,17 @@
+# Virtual environment
+venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# IDE & Editor files
+.vscode/
+.idea/
+*.sublime-workspace
+
+# Environment variables
+.env
+
+# Dependency files
+*.log
+*.db
