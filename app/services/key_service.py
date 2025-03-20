@@ -2,7 +2,7 @@ import os
 import base64
 import uuid
 from cryptography.hazmat.primitives.asymmetric import rsa
-from cryptography.hazmat.primitives.serialization import Encoding, PrivateFormat, NoEncryption
+from cryptography.hazmat.primitives.serialization import Encoding, PrivateFormat, PublicFormat, NoEncryption
 from cryptography.hazmat.backends import default_backend
 
 # In-memory key storage
@@ -27,22 +27,31 @@ class KeyService:
             key_size=2048,
             backend=default_backend()
         )
+
+        # Serialize Private Key
         private_pem = private_key.private_bytes(
             Encoding.PEM,
             PrivateFormat.PKCS8,
             NoEncryption()
         )
 
-        key_value = base64.b64encode(private_pem).decode()
+        # Serialize Public Key
+        public_pem = private_key.public_key().public_bytes(
+            Encoding.PEM,
+            PublicFormat.SubjectPublicKeyInfo
+        )
 
         key_id = str(uuid.uuid4())
 
-        # Store key for future use
-        KEY_STORAGE[key_id] = {"key_type": "RSA", "key_value": key_value}
-        return key_id, key_value
+        # Store both keys
+        KEY_STORAGE[key_id] = {
+            "key_type": "RSA",
+            "private_key": base64.b64encode(private_pem).decode(),
+            "public_key": base64.b64encode(public_pem).decode()
+        }
+
+        return key_id, base64.b64encode(public_pem).decode()  # Return key_id and public key
 
     @staticmethod
     def get_key_by_id(key_id):
         return KEY_STORAGE.get(key_id)
-
-

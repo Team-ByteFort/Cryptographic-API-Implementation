@@ -3,6 +3,9 @@ import os
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
 from app.services.key_service import KeyService
+from cryptography.hazmat.primitives.serialization import load_pem_private_key, load_pem_public_key
+from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.hazmat.primitives import hashes
 
 class EncryptionService:
     @staticmethod
@@ -13,12 +16,9 @@ class EncryptionService:
             return {"error": "Invalid key_id. Key not found."}, 400
         
         key_type = key_entry["key_type"]
-        
-        key_value = base64.b64decode(key_entry["key_value"])
-        
-        
 
         if key_type == "AES" and algorithm == "AES":
+            key_value = base64.b64decode(key_entry["key_value"])
             iv = os.urandom(16)  # Generate a random IV for each encryption
             cipher = Cipher(algorithms.AES(key_value), modes.CBC(iv), backend=default_backend())
             encryptor = cipher.encryptor()
@@ -33,7 +33,19 @@ class EncryptionService:
             return base64.b64encode(iv + ciphertext).decode()
         
         elif key_type == "RSA" and algorithm == "RSA":
-            pass
+            public_key = base64.b64decode(key_entry["public_key"])  # Get public key
+            public_key = load_pem_public_key(public_key, backend=default_backend())
+
+            ciphertext = public_key.encrypt(
+                plaintext.encode(),
+                padding.OAEP(
+                    mgf=padding.MGF1(algorithm=hashes.SHA256()),
+                    algorithm=hashes.SHA256(),
+                    label=None
+                )
+            )
+
+            return base64.b64encode(ciphertext).decode()  # Return encoded ciphertext
 
         else:
             return {"error": "Invalid key_type or algorithm."}, 400
@@ -46,10 +58,11 @@ class EncryptionService:
             return {"error": "Invalid key_id. Key not found."}, 400
         
         key_type = key_entry["key_type"]
-        key_value = base64.b64decode(key_entry["key_value"])
+        
 
         # Ensure correct AES key size
         if key_type == "AES" and algorithm == "AES":
+            key_value = base64.b64decode(key_entry["key_value"])
             if len(key_value) not in [16, 24, 32]:
                 return {"error": "Invalid key size for AES encryption."}, 400
 
@@ -71,7 +84,19 @@ class EncryptionService:
             return result.decode()
     
         elif key_type == "RSA" and algorithm == "RSA":
-            pass
+            private_key = base64.b64decode(key_entry["private_key"])  # Get private key
+            private_key = load_pem_private_key(private_key, password=None, backend=default_backend())
+
+            decrypted = private_key.decrypt(
+                base64.b64decode(ciphertext),
+                padding.OAEP(
+                    mgf=padding.MGF1(algorithm=hashes.SHA256()),
+                    algorithm=hashes.SHA256(),
+                    label=None
+                )
+            )
+
+            return decrypted.decode()
 
         else:
             return {"error": "Invalid key_type or algorithm."}, 400
