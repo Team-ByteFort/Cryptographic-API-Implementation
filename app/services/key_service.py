@@ -18,41 +18,56 @@ KEY_STORAGE = {}
 class KeyService:
     @staticmethod
     def generate_aes_key(key_size=256):
-        key = os.urandom(
-            key_size // 8
-        )  # Generate a random key of key_size bits and convert to bytes
+        response = {"error": "An error occurred while processing the request."}  # Default response
 
-        key_id = str(uuid.uuid4())  # Generate a unique key ID
-        key_value = base64.b64encode(key).decode()
+        try:
+            key = os.urandom(
+                key_size // 8
+            )  # Generate a random key of key_size bits and convert to bytes
 
-        # Store key for future use
-        KEY_STORAGE[key_id] = {"key_type": "AES", "key_value": key_value}
-        return key_id, key_value
+            key_id = str(uuid.uuid4())  # Generate a unique key ID
+            key_value = base64.b64encode(key).decode()
+
+            # Store key for future use
+            KEY_STORAGE[key_id] = {"key_type": "AES", "key_value": key_value}
+
+            response = {"key_id": key_id, "key_value": key_value}
+        except Exception as e:
+            response = {"error": f"An error occurred: {str(e)}"}
+
+        return response
 
     @staticmethod
     def generate_rsa_key(key_size=2048):
-        private_key = rsa.generate_private_key(
-            public_exponent=65537, key_size=key_size, backend=default_backend()
-        )
+        response = {"error": "An error occurred while processing the request."}  # Default response
 
-        # Serialize Private Key
-        private_pem = private_key.private_bytes(Encoding.PEM, PrivateFormat.PKCS8, NoEncryption())
+        try:
+            private_key = rsa.generate_private_key(
+                public_exponent=65537, key_size=key_size, backend=default_backend()
+            )
 
-        # Serialize Public Key
-        public_pem = private_key.public_key().public_bytes(
-            Encoding.PEM, PublicFormat.SubjectPublicKeyInfo
-        )
+            # Serialize Private Key
+            private_pem = private_key.private_bytes(
+                Encoding.PEM, PrivateFormat.PKCS8, NoEncryption()
+            )
 
-        key_id = str(uuid.uuid4())
+            # Serialize Public Key
+            public_pem = private_key.public_key().public_bytes(
+                Encoding.PEM, PublicFormat.SubjectPublicKeyInfo
+            )
 
-        # Store both keys
-        KEY_STORAGE[key_id] = {
-            "key_type": "RSA",
-            "private_key": base64.b64encode(private_pem).decode(),
-            "public_key": base64.b64encode(public_pem).decode(),
-        }
+            key_id = str(uuid.uuid4())
 
-        return key_id, base64.b64encode(public_pem).decode()  # Return key_id and public key
+            # Store both keys
+            KEY_STORAGE[key_id] = {
+                "key_type": "RSA",
+                "private_key": base64.b64encode(private_pem).decode(),
+                "public_key": base64.b64encode(public_pem).decode(),
+            }
+            response = {"key_id": key_id, "public_key": base64.b64encode(public_pem).decode()}
+        except Exception as e:
+            response = {"error": f"An error occurred: {str(e)}"}
+        return response
 
     @staticmethod
     def get_key_by_id(key_id):
