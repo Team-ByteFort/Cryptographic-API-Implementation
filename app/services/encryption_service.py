@@ -100,6 +100,7 @@ class EncryptionService:
                     return result
 
                 response = result.decode()
+                response = {"plaintext": response}
                 return response
 
             elif key_type == "RSA" and algorithm == "RSA":
@@ -118,6 +119,7 @@ class EncryptionService:
                 )
 
                 response = decrypted.decode()
+                response = {"plaintext": response}
                 return response
 
             else:
