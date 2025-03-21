@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team ByteFort - Cryptographic APIs</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        h2 {
+            margin-top: 30px;
+        }
+        pre {
+            background-color: #eee;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        code {
+            font-family: Consolas, monospace;
+        }
+        .endpoint {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .method {
+            font-weight: bold;
+            color: #007BFF;
+        }
+        .url {
+            font-style: italic;
+            color: #28A745;
+        }
+    </style>
+</head>
+<body>
+    <h1>Cryptographic API Usage Instructions</h1>
+    <p>This page provides instructions on how to use the cryptographic APIs for key generation, encryption, decryption, hash generation, and hash verification. The APIs are built using FastAPI and the Cryptography library in Python. You can test these APIs using tools like Postman or any HTTP client.</p>
+    <p><strong>Base URL:</strong> <code>https://kurrshanthv.eu.pythonanywhere.com</code></p>
+
+    <div class="endpoint">
+        <h2>1. Key Generation Endpoint</h2>
+        <p><span class="method">POST</span> <span class="url">/generate-key</span></p>
+        <p><strong>Description:</strong> Generates a cryptographic key based on the specified type and size.</p>
+        <p><strong>Request Body (JSON):</strong></p>
+        <pre><code>{
+    "key_type": "AES",  // or "RSA"
+    "key_size": 256     // for AES: 128, 192, 256; for RSA: 2048, 3072, etc.
+}</code></pre>
+        <p><strong>Response (JSON):</strong></p>
+        <pre><code>{
+    "key_id": "unique-key-id",
+    "key_value": "base64-encoded-key"
+}</code></pre>
+        <p><strong>Note:</strong> Save the <code>key_id</code> for encryption and decryption operations.</p>
+    </div>
+
+    <div class="endpoint">
+        <h2>2. Encryption Endpoint</h2>
+        <p><span class="method">POST</span> <span class="url">/encrypt</span></p>
+        <p><strong>Description:</strong> Encrypts the provided plaintext using the specified key and algorithm.</p>
+        <p><strong>Request Body (JSON):</strong></p>
+        <pre><code>{
+    "key_id": "unique-key-id",
+    "plaintext": "message-to-encrypt",
+    "algorithm": "AES"  // or "RSA"
+}</code></pre>
+        <p><strong>Response (JSON):</strong></p>
+        <pre><code>{
+    "ciphertext": "base64-encoded-ciphertext"
+}</code></pre>
+    </div>
+
+    <div class="endpoint">
+        <h2>3. Decryption Endpoint</h2>
+        <p><span class="method">POST</span> <span class="url">/decrypt</span></p>
+        <p><strong>Description:</strong> Decrypts the provided ciphertext using the specified key and algorithm.</p>
+        <p><strong>Request Body (JSON):</strong></p>
+        <pre><code>{
+    "key_id": "unique-key-id",
+    "ciphertext": "base64-encoded-ciphertext",
+    "algorithm": "AES"  // or "RSA"
+}</code></pre>
+        <p><strong>Response (JSON):</strong></p>
+        <pre><code>{
+    "plaintext": "original-message"
+}</code></pre>
+    </div>
+
+    <div class="endpoint">
+        <h2>4. Hash Generation Endpoint</h2>
+        <p><span class="method">POST</span> <span class="url">/generate-hash</span></p>
+        <p><strong>Description:</strong> Generates a hash for the given data using the specified hashing algorithm.</p>
+        <p><strong>Request Body (JSON):</strong></p>
+        <pre><code>{
+    "data": "message-to-hash",
+    "algorithm": "SHA-256"  // or "SHA-512"
+}</code></pre>
+        <p><strong>Response (JSON):</strong></p>
+        <pre><code>{
+    "hash_value": "base64-encoded-hash",
+    "algorithm": "SHA-256"
+}</code></pre>
+    </div>
+
+    <div class="endpoint">
+        <h2>5. Hash Verification Endpoint</h2>
+        <p><span class="method">POST</span> <span class="url">/verify-hash</span></p>
+        <p><strong>Description:</strong> Verifies if the provided hash matches the data using the specified algorithm.</p>
+        <p><strong>Request Body (JSON):</strong></p>
+        <pre><code>{
+    "data": "message-to-verify",
+    "hash_value": "base64-encoded-hash",
+    "algorithm": "SHA-256"  // or "SHA-512"
+}</code></pre>
+        <p><strong>Response (JSON):</strong></p>
+        <pre><code>{
+    "is_valid": true,  // or false
+    "message": "Hash matches the data."  // or "Hash does not match the data."
+}</code></pre>
+    </div>
+
+    <!-- <h2>Additional Notes</h2>
+    <ul>
+        <li>Ensure that the API is running locally or on a server before making requests.</li>
+        <li>Use tools like Postman to send HTTP requests to the API endpoints.</li>
+        <li>For RSA encryption, the plaintext must be shorter than the key size (e.g., < 245 bytes for a 2048-bit key).</li>
+        <li>Supported hashing algorithms are SHA-256 and SHA-512.</li>
+    </ul> -->
+</body>
+</html>
