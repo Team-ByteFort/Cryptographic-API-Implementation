@@ -1,9 +1,11 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, jsonify, request
+
 from app.services.key_service import KeyService
 
-key_routes = Blueprint('key_routes', __name__)
+key_routes = Blueprint("key_routes", __name__)
 
-@key_routes.route('/generate-key', methods=['POST'])
+
+@key_routes.route("/generate-key", methods=["POST"])
 def generate_key():
     data = request.json
     key_type = data.get("key_type")
@@ -12,7 +14,7 @@ def generate_key():
     if key_type == "AES":
         key_id, key_value = KeyService.generate_aes_key(key_size)
     elif key_type == "RSA":
-        key_id, key_value = KeyService.generate_rsa_key()
+        key_id, key_value = KeyService.generate_rsa_key(key_size)
     else:
         return jsonify({"error": "Unsupported key type. Use 'AES' or 'RSA'."}), 400
 
