@@ -21,7 +21,7 @@ class EncryptionService:
         try:
             key_entry = KeyService.get_key_by_id(key_id)
 
-            if not key_entry:
+            if not key_entry.get("key_id"):
                 return {"error": "Invalid key_id. Key not found."}, 400
 
             key_type = key_entry["key_type"]
@@ -73,7 +73,7 @@ class EncryptionService:
         try:
             key_entry = KeyService.get_key_by_id(key_id)
 
-            if not key_entry:
+            if not key_entry.get("key_id"):
                 return {"error": "Invalid key_id. Key not found."}, 400
 
             key_type = key_entry["key_type"]
