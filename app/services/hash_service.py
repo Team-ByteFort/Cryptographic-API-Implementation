@@ -1,5 +1,7 @@
-import hashlib
 import hmac
+
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import hashes
 
 
 class HashService:
@@ -9,11 +11,14 @@ class HashService:
 
         try:
             if algorithm == "SHA-256":
-                hash_value = hashlib.sha256(data.encode()).hexdigest()
+                digest = hashes.Hash(hashes.SHA256(), backend=default_backend())
             elif algorithm == "SHA-512":
-                hash_value = hashlib.sha512(data.encode()).hexdigest()
+                digest = hashes.Hash(hashes.SHA512(), backend=default_backend())
             else:
                 raise ValueError("Unsupported hashing algorithm")
+
+            digest.update(data.encode())
+            hash_value = digest.finalize().hex()
 
             response = {"hash_value": hash_value, "algorithm": algorithm}
         except Exception as e:
