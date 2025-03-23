@@ -34,9 +34,9 @@ class EncryptionService:
 
                 # Pad plaintext to be a multiple of block size
                 pad_length = 16 - (len(plaintext) % 16)
-                padded_plaintext = plaintext + chr(pad_length) * pad_length
+                padded_plaintext = plaintext.encode() + bytes([pad_length] * pad_length)
 
-                ciphertext = encryptor.update(padded_plaintext.encode()) + encryptor.finalize()
+                ciphertext = encryptor.update(padded_plaintext) + encryptor.finalize()
 
                 # Include the IV in the final output
                 response = base64.b64encode(iv + ciphertext).decode()
